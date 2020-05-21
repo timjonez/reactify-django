@@ -1,12 +1,14 @@
 import React, {Component} from 'react';
 import cookie from 'react-cookies';
 import 'whatwg-fetch';
+import moment from 'moment';
 
 class PostCreate extends Component{
 
   constructor(props){
     super(props)
     this.handleSubmit = this.handleSubmit.bind(this)
+    this.clearForm = this.clearForm.bind(this)
     this.handleInputChange = this.handleInputChange.bind(this)
   }
 
@@ -29,6 +31,10 @@ class PostCreate extends Component{
       return response.json()
     }).then(function(responseData){
          console.log(responseData)
+         if (this.props.newPostItemCreated){
+           this.props.newPostItemCreated(responseData)
+         }
+         this.clearForm()
     }).catch(function(error){
          console.log('error', error)
     })
@@ -54,9 +60,26 @@ class PostCreate extends Component{
     })
   }
 
+  clearForm(event){
+    if (event){
+      event.preventDefault()
+    }
+    this.postCreateForm.reset()
+  }
+
+  componentDidMount(){
+    this.setState({
+      draft: false,
+      title: null,
+      content:null,
+      publish: moment().format('YYYY-MM-DD')
+    })
+  }
+
   render(){
+    const {publish} = this.state
     return(
-      <form onSubmit={this.handleSubmit}>
+      <form onSubmit={this.handleSubmit} ref={(el) => this.postCreateForm = el} >
         <div className='form-group'>
           <label for='title'>Post Title</label>
           <input type='text' name='title' className='form-control' placeholder='Title' onChange={this.handleInputChange} required='required'/>
@@ -72,9 +95,10 @@ class PostCreate extends Component{
         </div>
         <div className='form-group'>
           <label for='publish'>Publish Date</label>
-          <input type='date' name='publish' className='form-control' onChange={this.handleInputChange} required='required'/>
+          <input type='date' name='publish' className='form-control' onChange={this.handleInputChange} required='required' value={publish}/>
         </div>
         <button className='btn btn-primary'>Save</button>
+        <button className='btn btn-secondary' onClick={this.clearForm}>Cancel</button>
       </form>
     )
   }
