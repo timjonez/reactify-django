@@ -3,7 +3,7 @@ import 'whatwg-fetch';
 import cookie from 'react-cookies';
 
 import PostInline from './PostInline'
-
+import PostCreate from './PostCreate'
 
 class Posts extends Component {
 
@@ -38,36 +38,6 @@ class Posts extends Component {
     })
   }
 
-  createPost(){
-    const endpoint = '/api/posts/'
-    const csrfToken = cookie.load('csrftoken')
-    let data = {
-      "slug":"",
-      "title":"",
-      "content":"",
-      "draft":false,
-      "publish": null,
-    }
-    if (csrfToken !== undefined){
-      let lookupOptions = {
-        method: "POST",
-        headers: {
-          "Content-Type":'application/json',
-          "X-CSRFToken": csrfToken,
-        },
-        body: JSON.stringify(data),
-        credentials: 'include',
-      }
-
-    fetch(endpoint, lookupOptions)
-    .then(function(response){
-      return response.json()
-    }).then(function(responseData){
-         console.log(responseData)
-    }).catch(function(error){
-         console.log('error', error)
-    })
-  }}
 
   togglePostListClass(event){
     event.preventDefault()
@@ -93,6 +63,7 @@ class Posts extends Component {
   render() {
     const {posts} = this.state
     const {postsListClass} = this.state
+    const csrfToken = cookie.load('csrftoken')
     return (
       <div>
         <h1>Hello World</h1>
@@ -105,6 +76,12 @@ class Posts extends Component {
             />
           )
         }) : <p>No posts found</p>}
+
+        { (csrfToken !== undefined && csrfToken !== null) ?
+        <div className='my-5'>
+          <PostCreate />
+        </div>: ""}
+
       </div>
     );
   }
